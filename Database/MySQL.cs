@@ -18,12 +18,33 @@ namespace AntStatsCore.Database
         }
 
 
-
-
-        private static Result UpdateData(string connector,string ColumnName,int ColumnId,string Data,string nameTable, ref int percentageProgress,ref int maxProgress,ref int progress)
-       {
-            bool error = false;
+        private static Result TestConnection(string connector)
+        {
+            Result response=Result.NoError;
             
+            try
+            {
+                MySqlConnection mySqlConnection = new MySqlConnection(connector); 
+                mySqlConnection.Open(); 
+                mySqlConnection.Close(); 
+            }
+            catch (Exception )
+            { 
+                response = Result.ErrorExist;
+            }
+
+
+            return response;
+        }
+
+        
+        
+        
+        
+
+        private static void UpdateData(string connector,string columnName,int columnId,string data,string nameTable, ref int percentageProgress,ref int maxProgress,ref int progress)
+       {
+          
             new Thread(() =>
             {
            
@@ -33,15 +54,15 @@ namespace AntStatsCore.Database
                     {
                         MySqlConnection mySqlConnection = new MySqlConnection(connector);
                         mySqlConnection.Open();
-                        string Commondq = $"UPDATE {nameTable} SET {ColumnName}='{Data}' WHERE id = '{ColumnId}'";
+                        string Commondq = $"UPDATE {nameTable} SET {columnName}='{data}' WHERE id = '{columnId}'";
                         MySqlCommand command = new MySqlCommand(Commondq,mySqlConnection);
                         command.ExecuteNonQuery();
                         mySqlConnection.Close();
-                        error = false;
+                       
                     }
                     catch (Exception)
                     {
-                        error = true;
+                       
                       
                     }
 
@@ -50,18 +71,10 @@ namespace AntStatsCore.Database
                     
             }).Start();
 
-            if (error==false)
-            {    
-              
-                addprogress(ref progress, ref maxProgress, ref percentageProgress);
-                
-                return Result.NoError;
-            }
-            else
-            {
-                return Result.ErrorExist;
-            }
             
+            addprogress(ref progress, ref maxProgress, ref percentageProgress);
+                
+           
        }
 
 
@@ -219,43 +232,44 @@ namespace AntStatsCore.Database
   
         
         
-       public Result SetAsicColumnData(string connectionString, AsicStandardStatsObject column,string table,ref int percentageProgress)
+        public  Result SetAsicColumnData(string connectionString, AsicStandardStatsObject column,string table,ref int percentageProgress)
        {
            Result dataBaseErrorExists=Result.NoError;
            int maxProgress = 84;
            int progress=0;
            
-           
+           dataBaseErrorExists = TestConnection(connectionString); 
            for (int i = 0; i <= 9-1; i++)
            {
 
               
                
-                   dataBaseErrorExists = UpdateData(connectionString, "Chain", i, column.LasicAsicColumnStats[i].Chain, table,ref percentageProgress,ref maxProgress,ref progress);
-                   dataBaseErrorExists = UpdateData(connectionString, "Frequency", i, column.LasicAsicColumnStats[i].Frequency, table,ref percentageProgress,ref maxProgress,ref progress);
-                   dataBaseErrorExists = UpdateData(connectionString, "Watts", i, column.LasicAsicColumnStats[i].Watts, table,ref percentageProgress,ref maxProgress,ref progress);
-                   Thread.Sleep(400);
+               if (dataBaseErrorExists == Result.NoError)
+               {   
+                    UpdateData(connectionString, "Chain", i, column.LasicAsicColumnStats[i].Chain, table,ref percentageProgress,ref maxProgress,ref progress);
+                   UpdateData(connectionString, "Frequency", i, column.LasicAsicColumnStats[i].Frequency, table,ref percentageProgress,ref maxProgress,ref progress);
+                   UpdateData(connectionString, "Watts", i, column.LasicAsicColumnStats[i].Watts, table,ref percentageProgress,ref maxProgress,ref progress);
+               
+                   Thread.Sleep(200);
+                   UpdateData(connectionString, "GHideal", i,column.LasicAsicColumnStats[i].GHideal,table,ref percentageProgress,ref maxProgress,ref progress);
+                  UpdateData(connectionString, "GHRT", i,column.LasicAsicColumnStats[i].GHRT,table,ref percentageProgress,ref maxProgress,ref progress);
+                  UpdateData(connectionString, "HW", i,column.LasicAsicColumnStats[i].HW,table,ref percentageProgress,ref maxProgress,ref progress);
+               
+             
+                 
+                  Thread.Sleep(200);
               
-               if (dataBaseErrorExists == Result.NoError)
-               {
-                   dataBaseErrorExists = UpdateData(connectionString, "GHideal", i,column.LasicAsicColumnStats[i].GHideal,table,ref percentageProgress,ref maxProgress,ref progress);
-                   dataBaseErrorExists = UpdateData(connectionString, "GHRT", i,column.LasicAsicColumnStats[i].GHRT,table,ref percentageProgress,ref maxProgress,ref progress);
-                   dataBaseErrorExists = UpdateData(connectionString, "HW", i,column.LasicAsicColumnStats[i].HW,table,ref percentageProgress,ref maxProgress,ref progress);
-               } 
-               Thread.Sleep(400);
-
-               if (dataBaseErrorExists == Result.NoError)
-               {
-                   dataBaseErrorExists = UpdateData(connectionString, "TempPCB", i,column.LasicAsicColumnStats[i].TempPCB,table,ref percentageProgress,ref maxProgress,ref progress);
-                   dataBaseErrorExists = UpdateData(connectionString, "TempChip", i,column.LasicAsicColumnStats[i].TempChip,table,ref percentageProgress,ref maxProgress,ref progress);
-                   dataBaseErrorExists = UpdateData(connectionString, "Status", i,column.LasicAsicColumnStats[i].Status,table,ref percentageProgress,ref maxProgress,ref progress);
+                   UpdateData(connectionString, "TempPCB", i,column.LasicAsicColumnStats[i].TempPCB,table,ref percentageProgress,ref maxProgress,ref progress);
+                   UpdateData(connectionString, "TempChip", i,column.LasicAsicColumnStats[i].TempChip,table,ref percentageProgress,ref maxProgress,ref progress);
+                   UpdateData(connectionString, "Status", i,column.LasicAsicColumnStats[i].Status,table,ref percentageProgress,ref maxProgress,ref progress);
                }
 
-               Thread.Sleep(400);
+        
                 
                
            } 
             
+       
            
            if (dataBaseErrorExists==Result.NoError)
            { 
@@ -267,7 +281,7 @@ namespace AntStatsCore.Database
 
 
 
-           return Result.ErrorExist;
+           return dataBaseErrorExists;
        }
     }
 }
