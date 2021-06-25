@@ -66,7 +66,7 @@ namespace AntStatsCore
         public static async void Save(SettingsData settingsClass,string path=default)
         {
            
-            using (FileStream fs = new FileStream("settings.json", FileMode.OpenOrCreate))
+            using (FileStream fs = new FileStream(path+"settings.json", FileMode.OpenOrCreate))
             { 
                 //cleaning
                 fs.SetLength(default);
