@@ -64,10 +64,8 @@ namespace AntStatsCore
                    if (noExtension!="")
                        directorys.Add(noExtension);  
                    
-                   
                }
-
-
+               
             });
             
             
@@ -87,10 +85,10 @@ namespace AntStatsCore
             return settingsDatas;
         }
 
+        
 
 
-
-        public static async Task<SettingsData> Get(string Profilename,string path)
+        public static async Task<SettingsData> Get(string profilename,string path)
         {
             
             string profilesDirectory="ProfilesAntStats";
@@ -100,7 +98,7 @@ namespace AntStatsCore
                 
                 try
                 {
-                    using (FileStream fs = new FileStream(path+profilesDirectory+"/"+Profilename+".json", FileMode.OpenOrCreate))
+                    using (FileStream fs = new FileStream(path+profilesDirectory+"/"+profilename+".json", FileMode.OpenOrCreate))
                     {
                         settings = await JsonSerializer.DeserializeAsync<SettingsData>(fs);
                     }
@@ -114,7 +112,16 @@ namespace AntStatsCore
           
         }
 
-
+        public static async void DeleteSettingsProfile(string profilename,string path)
+        {
+            string profilesDirectory="ProfilesAntStats";
+            await Task.Run(() =>
+            {
+                if (File.Exists(path+profilesDirectory+"/"+profilename+".json"))
+                    File.Delete(path+profilesDirectory+"/"+profilename+".json");
+                
+            });
+        }
 
         public static async void Save(SettingsData settingsClass,string path=default)
         {
