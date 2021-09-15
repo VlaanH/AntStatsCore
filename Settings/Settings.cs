@@ -46,10 +46,8 @@ namespace AntStatsCore
 
         public static async Task<List<SettingsData>> GetProfiles()
         {
-            
+            //getting profile names
             string profilesDirectory="ProfilesAntStats";
-            
-            List<SettingsData> settingsDatas=new List<SettingsData>();
             
             List<string> directorys= new List<string>();
             
@@ -73,6 +71,8 @@ namespace AntStatsCore
                
             });
             
+            //getting settings data
+            List<SettingsData> settingsDatas=new List<SettingsData>();
             
             for (int i = 0; i < directorys.Count; i++)
             {
@@ -91,8 +91,7 @@ namespace AntStatsCore
         }
 
         
-
-
+        //the path to the directory must be specified together with the "/" at the end
         public static async Task<SettingsData> Get(string profilename,string path)
         {
             
@@ -135,8 +134,8 @@ namespace AntStatsCore
         public static async void Save(SettingsData settingsClass,string path=default)
         {
             string profilesDirectory="ProfilesAntStats";
-            if (Directory.Exists(profilesDirectory) == false)
-                Directory.CreateDirectory(profilesDirectory);
+            if (Directory.Exists(path+profilesDirectory) == false)
+                Directory.CreateDirectory(path+profilesDirectory);
             
             
             using (FileStream fs = new FileStream(path+profilesDirectory+"/"+settingsClass.NameProfile+".json", FileMode.OpenOrCreate))
