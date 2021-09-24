@@ -44,50 +44,47 @@ namespace AntStatsCore
     public static class Settings
     {
 
-        public static async Task<List<SettingsData>> GetProfiles()
+        public static async Task<List<SettingsData>> GetProfiles(string path = default)
         {
             //getting profile names
             string profilesDirectory="ProfilesAntStats";
             
-            List<string> directorys= new List<string>();
+            List<string> nameDirectories = new List<string>();
             
             await Task.Run(() =>
             {
-                if (Directory.Exists(profilesDirectory))
+                if (Directory.Exists(path+profilesDirectory))
                 {
-                    var fdirectorys= new DirectoryInfo(profilesDirectory).GetFiles();   
-                    for (int i = 0; i < fdirectorys.Length; i++)
+                    var infoDirectory= new DirectoryInfo(path+profilesDirectory).GetFiles();   
+                    for (int i = 0; i < infoDirectory.Length; i++)
                     {
                         var pattern = @"([\w \W ]+).json";
-                        string noExtension = Regex.Match(fdirectorys[i].Name, pattern).Groups[1].Value;
+                        string noExtension = Regex.Match(infoDirectory[i].Name, pattern).Groups[1].Value;
                         if (noExtension!="")
-                            directorys.Add(noExtension);  
+                            nameDirectories.Add(noExtension);  
                    
                     }
                 }
              
-
-               
-               
             });
             
             //getting settings data
-            List<SettingsData> settingsDatas=new List<SettingsData>();
+            List<SettingsData> settingsData = new List<SettingsData>();
             
-            for (int i = 0; i < directorys.Count; i++)
+            for (int i = 0; i < nameDirectories.Count; i++)
             {
-               var settings = await Get(default, profilesDirectory + "/" + directorys[i]);
+               var settings = await Get(default, path + profilesDirectory + "/" + nameDirectories[i]);
                
-               settings.NameProfile = directorys[i];
+               settings.NameProfile = nameDirectories[i];
                
-               settingsDatas.Add(settings);
+               settingsData.Add(settings);
                
             }
            
             
             
             
-            return settingsDatas;
+            return settingsData;
         }
 
         
