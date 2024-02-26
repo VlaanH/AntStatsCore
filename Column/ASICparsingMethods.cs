@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json.Linq;
 
 namespace AntStatsCore.Parsing
@@ -138,9 +139,7 @@ namespace AntStatsCore.Parsing
                 
                 if (jObject.ContainsKey(apiValue + i))
                 {
-                    if (" oooooooo oooooooo oo"==(string) jObject[apiValue+i] |
-                        "oooooooo oooooooo oo"==(string) jObject[apiValue+i] | 
-                        " oooooooooo oooooooooo oooooooooo oooooooooo oooooooooo oooooooooo"==(string) jObject[apiValue+i])
+                    if (jObject[apiValue+i].Contains("x")==false)
                     {
                         asicColumn[i - 1].Status = "OK(o)";
                     }
